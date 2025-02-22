@@ -413,9 +413,13 @@ func main() {
 
 	// CORS configuration
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:3000"}, // Allow frontend origin
-		AllowedMethods:   []string{"GET", "POST", "PATCH", "OPTIONS"},
-		AllowedHeaders:   []string{"Authorization", "Content-Type"},
+		AllowedOrigins: []string{
+			"http://localhost:3000",
+			"https://ai-swart-gamma.vercel.app",    // Add your Vercel domain
+			"https://*.vercel.app",                  // Optional: Allow all Vercel subdomains
+		},
+		AllowedMethods: []string{"GET", "POST", "PATCH", "DELETE", "OPTIONS"},  // Added DELETE
+		AllowedHeaders: []string{"Authorization", "Content-Type"},
 		AllowCredentials: true,
 	})
 
