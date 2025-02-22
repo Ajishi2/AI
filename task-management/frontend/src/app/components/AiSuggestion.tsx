@@ -40,7 +40,7 @@ export default function AiSuggestion({ onSuggestion, onCreateTask }: AiSuggestio
     }
 
     try {
-      const response = await fetch('http://localhost:5040/ai/suggest', {
+      const response = await fetch('https://ai-rcan.onrender.com/ai/suggest', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

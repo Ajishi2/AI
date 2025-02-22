@@ -38,7 +38,7 @@ export default function Home() {
         return;
       }
   
-      const response = await fetch('http://localhost:5040/tasks?user_id=test123', {
+      const response = await fetch('https://ai-rcan.onrender.com/tasks?user_id=test123', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -83,7 +83,7 @@ export default function Home() {
         return
       }
   
-      const response = await fetch(`http://localhost:5040/tasks/${taskId}`, {
+      const response = await fetch(`https://ai-rcan.onrender.com/tasks/${taskId}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -110,7 +110,7 @@ export default function Home() {
         return
       }
 
-      const response = await fetch('http://localhost:5040/tasks', {
+      const response = await fetch('https://ai-rcan.onrender.com/tasks', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -139,7 +139,7 @@ export default function Home() {
         return
       }
   
-      const response = await fetch(`http://localhost:5040/tasks/${taskId}`, {
+      const response = await fetch(`https://ai-rcan.onrender.com/tasks/${taskId}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
