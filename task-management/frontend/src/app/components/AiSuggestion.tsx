@@ -21,9 +21,8 @@ export default function AiSuggestion({ onSuggestion, onCreateTask }: AiSuggestio
   const [isCreatingTask, setIsCreatingTask] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  // Function to clean AI suggestion text (removes **)
   const cleanSuggestion = (text: string) => {
-    return text.replace(/\*\*/g, ''); // Remove all occurrences of **
+    return text.replace(/\*\*/g, '');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -33,76 +32,58 @@ export default function AiSuggestion({ onSuggestion, onCreateTask }: AiSuggestio
     setSuggestion('');
     setSuccessMessage(null);
 
-    const token = localStorage.getItem('token');
-    if (!token) {
-      window.location.href = '/login';
-      return;
-    }
-
     try {
       const response = await fetch('https://ai-rcan.onrender.com/ai/suggest', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({ description }),
       });
 
-      if (response.status === 401) {
-        localStorage.removeItem('token');
-        window.location.href = '/login';
-        return;
+      if (!response.ok) {
+        throw new Error('Failed to get AI suggestion. Please try again.');
       }
 
       const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to get AI suggestion');
-      }
-
       const cleanedSuggestion = cleanSuggestion(data.suggestion);
       setSuggestion(cleanedSuggestion);
       onSuggestion(cleanedSuggestion);
-    } catch {
-      // ... handle error generically ...
+    } catch (err) {
+      console.error('AI Suggestion Error:', err);
+      setError('Failed to get AI suggestion. Please try again later.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Create task from AI suggestion
   const handleCreateTask = async () => {
     setIsCreatingTask(true);
     setError(null);
     setSuccessMessage(null);
 
     try {
-      // Extract title and clean the suggestion text
-      const title = suggestion.split('\n')[0].replace('Task:', '').trim(); // Clean title
-      const cleanedDescription = cleanSuggestion(suggestion); // Clean description
+      const title = suggestion.split('\n')[0].replace('Task:', '').trim();
+      const cleanedDescription = cleanSuggestion(suggestion);
 
-      // Create the task
       await onCreateTask({
         title,
         description: cleanedDescription,
         status: 'todo',
         priority: 'medium',
         due_date: new Date().toISOString(),
-        user_id: 'test123', // Replace this with dynamic user ID
+        user_id: 'test123',
       });
 
-      // Show success message
       setSuccessMessage('Task created successfully!');
 
-      // Clear form and reset states after successful task creation
       setTimeout(() => {
         setDescription('');
         setSuggestion('');
         setSuccessMessage(null);
       }, 2000);
     } catch (error) {
-      console.error('AI Suggestion Error:', error);
+      console.error('Create Task Error:', error);
       setError('Failed to create task from suggestion');
     } finally {
       setIsCreatingTask(false);
@@ -131,7 +112,7 @@ export default function AiSuggestion({ onSuggestion, onCreateTask }: AiSuggestio
               id="task-description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="E.g., I need to prepare a presentation for next week&apos;s meeting..."
+              placeholder="E.g., I need to prepare a presentation for next week's meeting..."
               className="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
               rows={3}
               disabled={isLoading}
