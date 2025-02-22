@@ -1,8 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
-import { Plus, X, Menu, LogOut, Loader2, AlertTriangle, LayoutGrid, List } from 'lucide-react'
+import { Plus, X, Menu, Loader2, AlertTriangle, LayoutGrid, List } from 'lucide-react'
 import TaskForm from './components/TaskForm'
 import TaskList from './components/TaskList'
 import AiSuggestion from './components/AiSuggestion'
@@ -25,69 +24,42 @@ export default function Home() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [filterStatus, setFilterStatus] = useState<'all' | 'todo' | 'in-progress' | 'completed'>('all')
   const [filterPriority, setFilterPriority] = useState<'all' | 'low' | 'medium' | 'high'>('all')
-  const router = useRouter()
 
-  // Define fetchTasks function before using it in useEffect
-   // Define fetchTasks with useCallback
-   const fetchTasks = useCallback(async () => {
-    setIsLoading(true);
+  const fetchTasks = useCallback(async () => {
+    setIsLoading(true)
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        router.push('/login');
-        return;
-      }
-  
       const response = await fetch('https://ai-rcan.onrender.com/tasks?user_id=test123', {
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
-        },
-      });
+          'Authorization': 'Bearer dummy_token'
+        }
+      })
   
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Error fetching tasks:', {
-          status: response.status,
-          statusText: response.statusText,
-          errorText,
-        });
-        throw new Error('Failed to fetch tasks');
+        const errorText = await response.text()
+        const errorData = safeJsonParse(errorText)
+        throw new Error(errorData.message || errorText || 'Failed to fetch tasks')
       }
   
-      const data: Task[] = await response.json();
-      setTasks(data);
+      const data: Task[] = await response.json()
+      setTasks(data)
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch tasks';
-      setError(errorMessage);
-      console.error('Error fetching tasks:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch tasks'
+      setError(errorMessage)
+      console.error('Error fetching tasks:', err)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  }, [router]);
+  }, [])
 
   useEffect(() => {
-    const token = localStorage.getItem('token')
-    if (!token) {
-      router.push('/login')
-      return
-    }
     fetchTasks()
-  }, [fetchTasks, router])
+  }, [fetchTasks])
 
   const handleDeleteTask = async (taskId: string) => {
     try {
-      const token = localStorage.getItem("token")
-      if (!token) {
-        router.push("/login")
-        return
-      }
-  
       const response = await fetch(`https://ai-rcan.onrender.com/tasks/${taskId}`, {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
       })
   
       if (!response.ok) {
@@ -104,17 +76,10 @@ export default function Home() {
 
   const handleCreateTask = async (taskData: Omit<Task, 'id'>) => {
     try {
-      const token = localStorage.getItem('token')
-      if (!token) {
-        router.push('/login')
-        return
-      }
-
       const response = await fetch('https://ai-rcan.onrender.com/tasks', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify(taskData),
       })
@@ -133,17 +98,10 @@ export default function Home() {
 
   const handleStatusChange = async (taskId: string, newStatus: Task["status"]) => {
     try {
-      const token = localStorage.getItem("token")
-      if (!token) {
-        router.push("/login")
-        return
-      }
-  
       const response = await fetch(`https://ai-rcan.onrender.com/tasks/${taskId}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ status: newStatus }),
       })
@@ -169,7 +127,6 @@ export default function Home() {
     return statusMatch && priorityMatch
   })
 
-  // Calculate task statistics
   const statistics = {
     total: tasks.length,
     todo: tasks.filter(t => t.status === 'todo').length,
@@ -203,10 +160,6 @@ export default function Home() {
                   <List className="h-5 w-5" />
                 </button>
               </div>
-              <button className="...">
-                <LogOut className="h-4 w-4 mr-2" />
-                Sign Out
-              </button>
             </div>
           </div>
         </div>
@@ -228,7 +181,7 @@ export default function Home() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* AI Suggestion Column */}
           <div className="lg:col-span-2">
-          <h2 className="text-2xl font-semibold mb-4 text-black">AI Task Assistant</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-black">AI Task Assistant</h2>
             <AiSuggestion onSuggestion={console.log} onCreateTask={handleCreateTask} />
           </div>
 
@@ -360,4 +313,12 @@ export default function Home() {
       )}
     </div>
   )
+}
+
+const safeJsonParse = (str: string) => {
+  try {
+    return JSON.parse(str)
+  } catch {
+    return { message: str }
+  }
 }

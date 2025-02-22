@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
+  // Remove the redirects configuration or leave it empty
+  // The root path will now directly show your main page
 }
 
-module.exports = nextConfig 
+module.exports = nextConfig
