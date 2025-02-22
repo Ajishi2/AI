@@ -20,6 +20,7 @@ A modern task management application powered by AI, built with React, Go, and Mo
 - Lucide React for icons
 - Real-time WebSocket integration
 - Vercel for deployment
+https://ai-pnuv-6zmku5wtk-ajishi2s-projects.vercel.app/
 
 ### Backend
 - Go (Golang)
@@ -27,7 +28,7 @@ A modern task management application powered by AI, built with React, Go, and Mo
 - Cohere API for AI suggestions
 - WebSocket for real-time updates
 - Render.com for deployment
-
+https://ai-rcan.onrender.com
 ## Getting Started
 
 ### Prerequisites
